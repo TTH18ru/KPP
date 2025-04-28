@@ -8,6 +8,13 @@
 <body>
     <h1>Student Information Form</h1>
     <form action="/submit" method="POST">
+        <label for="username">Username:</label><br>
+    <input type="text" id="username" name="username" required><br><br>
+
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password" required><br><br>
+
+
         <label for="studentId">Student ID:</label><br>
         <input type="text" id="studentId" name="studentId" pattern="\d{6}" required title="Please enter a 6-digit student ID"><br><br>
         <label for="name">Name:</label><br>
