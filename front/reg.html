@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information Form</title>
+</head>
+<body>
+    <h1>Student Information Form</h1>
+    <form action="/submit" method="POST">
+        <label for="studentId">Student ID:</label><br>
+        <input type="text" id="studentId" name="studentId" pattern="\d{6}" required title="Please enter a 6-digit student ID"><br><br>
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="surname">Surname:</label><br>
+        <input type="text" id="surname" name="surname" required><br><br>
+
+        <label for="dob">Date of Birth:</label><br>
+        <input type="date" id="dob" name="dob" required><br><br>
+
+        <label for="class">Student Class:</label><br>
+        <input type="text" id="class" name="class" required><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
