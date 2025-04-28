@@ -42,11 +42,11 @@ app.get('/', (req, res) => {
 
 // Handle form submission
 app.post('/submit', (req, res) => {
-    const { username, password, studentId, name, surname, dob, class: studentClass } = req.body;
+    const {name, surname, dob, class: studentClass,studentId,  username, password} = req.body;
 
-    const user = { username, password, studentId, name, surname, dob, class: studentClass };
+    const user = {name, surname, dob, class: studentClass, studentId, username, password };
 
-    db.query('INSERT INTO users SET ?', user, (error, results) => {
+    db.query('INSERT INTO students SET ?', user, (error, results) => {
         if (error) {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
             return res.status(400).send('Error registering user');
