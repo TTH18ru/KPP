@@ -51,13 +51,13 @@ app.post('/submit', (req, res) => {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
             return res.status(400).send('Error registering user');
         }
-        res.status(201).send('User registered successfully');
+            res.redirect('https://192.168.148.96:3000/qr.html');
     });
 });
 
 
 // Start the server
 
- https.createServer(options, app).listen(PORT, '192.168.1.60', () => {
-        console.log(`Server is running on https://192.168.1.60:${PORT}`);
+ https.createServer(options, app).listen(PORT, '192.168.148.96', () => {
+        console.log(`Server is running on https://192.168.148.96:${PORT}`);
 });
