@@ -4,11 +4,16 @@ const bodyParser = require('body-parser');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const secretKey = 'my_secret_key'
 
 const options = {
     key: fs.readFileSync(path.join(__dirname, 'server.key')), 
     cert: fs.readFileSync(path.join(__dirname, 'server.crt'))
 };
+
+
+
 
 const app = express();
 const PORT = 3000;
@@ -51,13 +56,39 @@ app.post('/submit', (req, res) => {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
             return res.status(400).send('Error registering user');
         }
-            res.redirect('https://192.168.148.96:3000/qr.html');
+            res.redirect('https://192.168.0.17:3000/aut.html');
+    });
+});
+
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    // Проверка наличия пользователя в базе данных
+    db.query('SELECT * FROM students WHERE username = ?', [username], (error, results) => {
+        if (error) {
+            console.error('Error during login:', error);
+            return res.status(500).send('Server error');
+        }
+
+        if (results.length === 0) {
+            return res.status(401).send('Invalid username or password');
+        }
+
+        const user = results[0];
+
+        // Сравнение пароля с тем, что хранится в базе данных
+        if (user.password !== password) {
+            return res.status(401).send('Invalid username or password');
+        }
+        const token = jwt.sign({ id: user.studentId, username: user.username }, secretKey, { expiresIn: '1h' }); // Токен будет действителен 1 час
+        res.json({ token });
+        res.redirect('https://192.168.0.17:3000/qr.html'); // Перенаправление на страницу после успешного входа
     });
 });
 
 
 // Start the server
 
- https.createServer(options, app).listen(PORT, '192.168.148.96', () => {
-        console.log(`Server is running on https://192.168.148.96:${PORT}`);
+ https.createServer(options, app).listen(PORT, '192.168.0.17', () => {
+        console.log(`Server is running on https://192.168.0.17:${PORT}`);
 });
