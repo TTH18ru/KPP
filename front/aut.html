@@ -20,42 +20,61 @@
             </div>
             <button id="loginButton" type="submit">Войти</button>
 
-            <script>
-                document.getElementById('loginButton').addEventListener('click', () => {
-                    event.preventDefault();
-                    fetch('https://192.168.148.96:3000/login', {
+ <script>
+    document.getElementById('loginButton').addEventListener('click', () => {
+        event.preventDefault();
+    const username = document.getElementById('username').value; 
+    const password = document.getElementById('password').value; 
+  
+    fetch('https://192.168.1.60:3000/login', {
     method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    headers: {'Content-Type': 'application/json',},
     body: JSON.stringify({ username, password }),
+    /*обработка при нажатии && передача данных серверу*/
 })
+
 .then(response => {
-    // Выводим статус и текст ответа для диагностики
     console.log('Response status:', response.status);
-    return response.text(); // Получаем текст ответа
-})
+    return response.text(); })
+   /*ответ сервера (200,300,400)*/
+
 .then(text => {
-    console.log('Response text:', text); // Выводим текст ответа
-    return JSON.parse(text); // Пробуем разобрать текст как JSON
-})
+    console.log('Response text:', text); 
+    return JSON.parse(text); })
+    /*содержание ответа (токен)*/
+
 .then(data => {
     if (data.token) {
         localStorage.setItem('token', data.token); // Сохраняем токен
-        window.location.href = 'https://192.168.148.96:3000/qr.html'; // Пример перенаправления
-    } else {
-        document.getElementById('errorMessage').innerText = 'Ошибка авторизации: ' + data.message;
-    }
-})
-.catch(error => {
-    console.error('Ошибка:', error);
-    document.getElementById('errorMessage').innerText = 'Произошла ошибка. Попробуйте еще раз.';
-})
-                });
+        window.location.href = 'https://192.168.1.60:3000/qr.html'; // Пример перенаправления
+    } else {    console.log("токен не работает");   }})
+    /*обработка ответа, редирект*/
+
+.catch(error => { console.log("что-то не работает, но это не токен");})  /*обработчик ошибок*/
+}); /*конец fetch*/
+
+    async function getUserProfile() {
+    const token = localStorage.getItem('token'); // Получаем токен из localStorage
+    console.log('Токен:', token);
+    const response = await fetch('/profile', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`, // Добавляем токен в заголовок Authorization
+        'Content-Type': 'application/json' // Указываем тип контента
+    }   });
+
+    if (!response.ok) {
+        // Обработка ошибок, если запрос не удался
+        const errorMessage = await response.text();
+        throw new Error(`Ошибка при получении профиля: ${errorMessage}`); }
+
+    const userProfile = await response.json(); // Парсим ответ в формате JSON
+    return userProfile; // Возвращаем данные профиля
+}
                 </script>
 
         </form>
-        <p>Нет аккаунта? <a href="https://192.168.148.96:3000/reg.html">Зарегистрируйтесь</a></p> <!-- Ссылка на страницу регистрации -->
+        <p>Нет аккаунта? <a href="https://192.168.1.60:3000/reg.html">Зарегистрируйтесь</a></p> <!-- Ссылка на страницу регистрации -->
     </div>
 </body>
 </html>
