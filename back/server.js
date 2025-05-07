@@ -7,6 +7,7 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const secretKey = 'my_secret_key'
 const cors = require('cors');
+const axios = require('axios');
 /*все необходимые зависимости */
 
 const options = {
@@ -16,6 +17,8 @@ const options = {
 
 const app = express();
 const PORT = 3000;
+const agent = new https.Agent({  
+    rejectUnauthorized: false });
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'adm', 
@@ -87,10 +90,10 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Получение данных пользователя
-app.get('/profile', authenticateToken, (req, res) => {
+app.get('/profile', authenticateToken, async (req, res) => { // Добавлено async
     const userId = req.user.id; // Извлекаем идентификатор пользователя из токена
 
-    db.query('SELECT * FROM students WHERE studentId = ?', [userId], (error, results) => {
+    db.query('SELECT * FROM students WHERE studentId = ?', [userId], async (error, results) => { // Добавлено async
         if (error) {
             console.error('Ошибка при получении данных пользователя:', error);
             return res.status(500).json({ message: 'Ошибка сервера', error: error.message });
@@ -100,9 +103,24 @@ app.get('/profile', authenticateToken, (req, res) => {
             return res.status(404).json({ message: 'Пользователь не найден' });
         }
 
-        res.json(results[0]); // Возвращаем данные пользователя
+        const userData = results[0]; // Получаем данные пользователя
+
+        try {
+            // Отправка данных на другой сайт
+            const response = await axios.post('https://192.168.1.60:3000/qr.html', userData, { httpsAgent: agent });
+            // Обработка ответа от другого сайта
+            if (response.status === 200) {
+                return res.json({ message: 'Данные успешно отправлены на другой сайт', data: userData });
+            } else {
+                return res.status(500).json({ message: 'Ошибка при отправке данных на другой сайт' });
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке данных на другой сайт:', error);
+            return res.status(500).json({ message: 'Ошибка сервера при отправке данных', error: error.message });
+        }
     });
 });
+
 
 
 // Start the server
