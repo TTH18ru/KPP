@@ -30,6 +30,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../front')));
 app.use(express.json());
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 /*middleware */
 
 db.connect((err) => {
@@ -51,7 +52,7 @@ app.post('/submit', (req, res) => {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
             return res.status(400).send('Error registering user');
         }
-            res.redirect('https://192.168.1.60:3000/aut.html'); }); }); 
+            res.redirect('https://192.168.127.96:3000/aut.html'); }); }); 
             /*регистрация */
 
 app.post('/login', (req, res) => {
@@ -105,26 +106,31 @@ app.get('/profile', authenticateToken, async (req, res) => { // Добавлен
 
         const userData = results[0]; // Получаем данные пользователя
 
-        try {
-            // Отправка данных на другой сайт
-            const response = await axios.post('https://192.168.1.60:3000/qr.html', userData, { httpsAgent: agent });
-            // Обработка ответа от другого сайта
-            if (response.status === 200) {
-                return res.json({ message: 'Данные успешно отправлены на другой сайт', data: userData });
-            } else {
-                return res.status(500).json({ message: 'Ошибка при отправке данных на другой сайт' });
-            }
-        } catch (error) {
-            console.error('Ошибка при отправке данных на другой сайт:', error);
-            return res.status(500).json({ message: 'Ошибка сервера при отправке данных', error: error.message });
-        }
+try {
+    const response = await axios.post('https://192.168.127.96:3000/qr.html', userData, { httpsAgent: agent });
+    console.log('Response:', response.data); // Логируем ответ от сервера
+    if (response.status === 200) {
+        return res.json({ message: 'Данные успешно доставлены', data: userData });
+    } else {
+        return res.status(500).json({ message: 'Ошибка при отправке данных на другой сайт' });
+    }
+} catch (error) {
+    console.error('Ошибка при отправке данных на другой сайт:', error.response ? error.response.data : error.message);
+    return res.status(500).json({ message: 'Ошибка сервера при отправке данных', error: error.message });
+} 
     });
+});
+
+app.post('/qr.html', (req, res) => {
+    const userData = req.body; // Получаем данные из запроса
+    console.log(userData); // Логируем данные для проверки
+    res.send('Данные получены'); // Отправляем ответ клиенту
 });
 
 
 
 // Start the server
 
- https.createServer(options, app).listen(PORT, '192.168.1.60', () => {
-        console.log(`Server is running on https://192.168.1.60:${PORT}`);
+ https.createServer(options, app).listen(PORT, '192.168.127.96', () => {
+        console.log(`Server is running on https://192.168.127.96:${PORT}`);
 });
