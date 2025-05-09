@@ -21,12 +21,15 @@
             <button id="loginButton" type="submit">Войти</button>
 
  <script>
+     window.onload = function() {
+        localStorage.removeItem('token');
+     };
     document.getElementById('loginButton').addEventListener('click', () => {
         event.preventDefault();
     const username = document.getElementById('username').value; 
     const password = document.getElementById('password').value; 
   
-    fetch('https://192.168.1.60:3000/login', {
+    fetch('https://192.168.127.96:3000/login', {
     method: 'POST',
     headers: {'Content-Type': 'application/json',},
     body: JSON.stringify({ username, password }),
@@ -46,35 +49,18 @@
 .then(data => {
     if (data.token) {
         localStorage.setItem('token', data.token); // Сохраняем токен
-        window.location.href = 'https://192.168.1.60:3000/qr.html'; // Пример перенаправления
+        window.location.href = 'https://192.168.127.96:3000/qr.html'; // Пример перенаправления
     } else {    console.log("токен не работает");   }})
     /*обработка ответа, редирект*/
 
 .catch(error => { console.log("что-то не работает, но это не токен");})  /*обработчик ошибок*/
 }); /*конец fetch*/
 
-    async function getUserProfile() {
-    const token = localStorage.getItem('token'); // Получаем токен из localStorage
-    console.log('Токен:', token);
-    const response = await fetch('/profile', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`, // Добавляем токен в заголовок Authorization
-        'Content-Type': 'application/json' // Указываем тип контента
-    }   });
 
-    if (!response.ok) {
-        // Обработка ошибок, если запрос не удался
-        const errorMessage = await response.text();
-        throw new Error(`Ошибка при получении профиля: ${errorMessage}`); }
-
-    const userProfile = await response.json(); // Парсим ответ в формате JSON
-    return userProfile; // Возвращаем данные профиля
-}
                 </script>
 
         </form>
-        <p>Нет аккаунта? <a href="https://192.168.1.60:3000/reg.html">Зарегистрируйтесь</a></p> <!-- Ссылка на страницу регистрации -->
+        <p>Нет аккаунта? <a href="https://192.168.127.96:3000/reg.html">Зарегистрируйтесь</a></p> <!-- Ссылка на страницу регистрации -->
     </div>
 </body>
 </html>
