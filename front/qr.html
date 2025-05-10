@@ -16,6 +16,7 @@
     <div id="greeting" class="greeting"></div>
 
 <script>
+    /*------------------------------------ данные с сервера --------------------------------------------*/
 async function getUserProfile() {
             const token = localStorage.getItem('token'); // Получаем токен из localStorage
             console.log('Токен:', token);
@@ -49,47 +50,72 @@ getUserProfile()
                 console.error('Ошибка:', error.message);
             });
 
+/*----------------------------------- логика qr ---------------------------------------*/
+const html5QrCode = new Html5Qrcode("reader");
 
-        const html5QrCode = new Html5Qrcode("reader");
+document.getElementById("startScan").addEventListener("click", function() {
+    console.log("Начало сканирования QR-кода..."); // Логирование начала сканирования
 
-        document.getElementById("startScan").addEventListener("click", function() {
-            html5QrCode.start(
-                { facingMode: "environment" }, // Use the environment camera
-                {
-                    fps: 10,    // Frame per second for scanning
-                    qrbox: 250  // Size of the scanning box
-                },
-                (decodedText, decodedResult) => {
-                    // Handle the scanned QR code
-                    document.getElementById("studentId").value = decodedText; // Assuming the QR code contains the student ID
-                    html5QrCode.stop().then((ignore) => {
-                        // QR Code scanning stopped
-                        document.getElementById("startScan").style.display = "block";
-                        document.getElementById("stopScan").style.display = "none";
-                    }).catch((err) => {
-                        console.error("Failed to stop scanning.", err);
-                    });
-                },
-                (errorMessage) => {
-                    // Handle scan error
-                }
-            ).catch((err) => {
-                console.error("Unable to start scanning.", err);
-            });
+    html5QrCode.start(
+        { facingMode: "environment" }, // Используем камеру окружения
+        {
+            fps: 10,    // Кадры в секунду для сканирования
+            qrbox: 250  // Размер области сканирования
+        },
+        (decodedText, decodedResult) => {
+            console.log("Отсканированный текст:", decodedText); // Логирование отсканированного текста
 
-            document.getElementById("startScan").style.display = "none";
-            document.getElementById("stopScan").style.display = "block";
-        });
+            // Проверяем, содержит ли QR-код текст "kpp"
+            if (decodedText.includes("kpp")) {
+                console.log("QR-код содержит 'kpp'."); // Логирование успешного сканирования
+                // Здесь можно добавить код для обработки данных
+            } else {
+                console.log("QR-код не содержит 'kpp'."); // Логирование, если текст не найден
+            }
 
-        document.getElementById("stopScan").addEventListener("click", function() {
+            // Останавливаем сканирование
             html5QrCode.stop().then((ignore) => {
-                // QR Code scanning stopped
+                console.log("Сканирование остановлено."); // Логирование остановки сканирования
                 document.getElementById("startScan").style.display = "block";
                 document.getElementById("stopScan").style.display = "none";
             }).catch((err) => {
-                console.error("Failed to stop scanning.", err);
+                console.error("Не удалось остановить сканирование.", err);
             });
-        });
+        },
+        (errorMessage) => {
+            console.error("Ошибка сканирования:", errorMessage); // Логирование ошибок сканирования
+        }
+    ).catch((err) => {
+        console.error("Не удалось начать сканирование.", err); // Логирование ошибок при запуске сканирования
+    });
+
+    document.getElementById("startScan").style.display = "none";
+    document.getElementById("stopScan").style.display = "block";
+});
+
+function sendDataToSecurity(data) {
+    fetch('https://example.com/security-endpoint', { // Замените на URL сайта охраны
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data) // Отправляем данные в формате JSON
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка при отправке данных на сайт охраны');
+        }
+        return response.json();
+    })
+    .then(responseData => {
+        console.log('Данные успешно отправлены на сайт охраны:', responseData);
+    })
+    .catch(error => {
+        console.error('Ошибка при отправке данных:', error.message);
+    });
+}
+
+    
     </script>
 </body>
 </html>
