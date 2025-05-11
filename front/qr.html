@@ -51,11 +51,10 @@ getUserProfile()
             });
 
 /*----------------------------------- логика qr ---------------------------------------*/
-const html5QrCode = new Html5Qrcode("reader");
 
+const html5QrCode = new Html5Qrcode("reader");
 document.getElementById("startScan").addEventListener("click", function() {
     console.log("Начало сканирования QR-кода..."); // Логирование начала сканирования
-
     html5QrCode.start(
         { facingMode: "environment" }, // Используем камеру окружения
         {
@@ -64,16 +63,22 @@ document.getElementById("startScan").addEventListener("click", function() {
         },
         (decodedText, decodedResult) => {
             console.log("Отсканированный текст:", decodedText); // Логирование отсканированного текста
+/*-----------------внешние настройки-----------------------------*/
 
             // Проверяем, содержит ли QR-код текст "kpp"
             if (decodedText.includes("kpp")) {
-                console.log("QR-код содержит 'kpp'."); // Логирование успешного сканирования
-                // Здесь можно добавить код для обработки данных
-            } else {
-                console.log("QR-код не содержит 'kpp'."); // Логирование, если текст не найден
-            }
+                console.log("QR-код содержит 'kpp'.");
+                getUserProfile()
+                .then(data => {
+                    console.log('Данные профиля:', data);
+                    
+                    // Отправляем все данные профиля на сайт охраны
+                    sendDataToSecurity(data.data); // Предполагается, что все нужные данные находятся в data.data
+                })
+/*---------------логика при успешном сканировании-------------------*/
 
-            // Останавливаем сканирование
+            } else {
+                console.log("QR-код не содержит 'kpp'."); }
             html5QrCode.stop().then((ignore) => {
                 console.log("Сканирование остановлено."); // Логирование остановки сканирования
                 document.getElementById("startScan").style.display = "block";
@@ -84,17 +89,18 @@ document.getElementById("startScan").addEventListener("click", function() {
         },
         (errorMessage) => {
             console.error("Ошибка сканирования:", errorMessage); // Логирование ошибок сканирования
-        }
+            }
     ).catch((err) => {
         console.error("Не удалось начать сканирование.", err); // Логирование ошибок при запуске сканирования
     });
-
     document.getElementById("startScan").style.display = "none";
-    document.getElementById("stopScan").style.display = "block";
-});
+    document.getElementById("stopScan").style.display = "block";});
+/*-----------------------обработчик ошибок при сканировании--------------------------*/
+
+/*------------------------------данные на сайт охраны-------------------------------*/
 
 function sendDataToSecurity(data) {
-    fetch('https://example.com/security-endpoint', { // Замените на URL сайта охраны
+    fetch('https://192.168.1.60:3000/guard.html', { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

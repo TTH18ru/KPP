@@ -52,7 +52,7 @@ app.post('/submit', (req, res) => {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
             return res.status(400).send('Error registering user');
         }
-            res.redirect('https://192.168.127.96:3000/aut.html'); }); }); 
+            res.redirect('https://192.168.1.60:3000/aut.html'); }); }); 
             /*регистрация */
 
 app.post('/login', (req, res) => {
@@ -107,7 +107,7 @@ app.get('/profile', authenticateToken, async (req, res) => { // Добавлен
         const userData = results[0]; // Получаем данные пользователя
 
 try {
-    const response = await axios.post('https://192.168.127.96:3000/qr.html', userData, { httpsAgent: agent });
+    const response = await axios.post('https://192.168.1.60:3000/qr.html', userData, { httpsAgent: agent });
     console.log('Response:', response.data); // Логируем ответ от сервера
     if (response.status === 200) {
         return res.json({ message: 'Данные успешно доставлены', data: userData });
@@ -128,9 +128,21 @@ app.post('/qr.html', (req, res) => {
 });
 
 
+app.post('/quard.html', (req, res) => {
+    const data = req.body; // Получаем данные из тела запроса
+    console.log('Полученные данные:', data);
+
+    // Здесь вы можете добавить логику для обработки данных
+    // Например, сохранить их в базе данных или выполнить другую логику
+
+    // Отправляем ответ клиенту
+    res.json({ message: 'Данные успешно получены' });
+});
+
+
 
 // Start the server
 
- https.createServer(options, app).listen(PORT, '192.168.127.96', () => {
-        console.log(`Server is running on https://192.168.127.96:${PORT}`);
+ https.createServer(options, app).listen(PORT, '192.168.1.60', () => {
+        console.log(`Server is running on https://192.168.1.60:${PORT}`);
 });
