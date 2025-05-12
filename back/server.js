@@ -127,20 +127,24 @@ app.post('/qr.html', (req, res) => {
     res.send('Данные получены'); // Отправляем ответ клиенту
 });
 
+let storedData = null;
 
-app.post('/quard.html', (req, res) => {
-    const data = req.body; // Получаем данные из тела запроса
-    console.log('Полученные данные:', data);
-
-    // Здесь вы можете добавить логику для обработки данных
-    // Например, сохранить их в базе данных или выполнить другую логику
-
-    // Отправляем ответ клиенту
-    res.json({ message: 'Данные успешно получены' });
+app.post('/guard.html', (req, res) => {
+  console.log('Запрос на /guard.html получен');
+  const data = req.body;
+  console.log('Полученные данные:', data);
+  storedData = data; // сохраняем данные в глобальной переменной
+  res.json({ status: 'success', received: data });
 });
 
-
-
+app.get('/guard/data', (req, res) => {
+  // возвращаем данные, которые были отправлены ранее
+  if (storedData !== null) {
+    res.json({ status: 'success', received: storedData });
+  } else {
+    res.json({ status: 'error', message: 'Нет данных' });
+  }
+});
 // Start the server
 
  https.createServer(options, app).listen(PORT, '192.168.1.60', () => {

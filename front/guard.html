@@ -7,9 +7,29 @@
     <link rel="stylesheet" href="styles.css"> <!-- Подключаем CSS файл -->
 </head>
 <body>
-    <div class="container">
-        <h1>Добро пожаловать на сайт охраны!</h1>
-        <p>Здесь вы можете получить информацию о студентах и их посещаемости.</p>
-    </div>
+<h1>Guard</h1>
+<div id="output"></div>
+
+<script>
+ fetch('/guard/data', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => {
+  console.log(data);
+  // отобразить данные на странице
+  const output = document.getElementById('output');
+  output.innerHTML = '';
+  for (const key in data.received) {
+    const paragraph = document.createElement('p');
+    paragraph.textContent = `${key}: ${data.received[key]}`;
+    output.appendChild(paragraph);
+  }
+})
+.catch(error => console.error('Ошибка:', error));
+</script>
 </body>
 </html>

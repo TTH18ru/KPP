@@ -16,10 +16,34 @@
     <div id="greeting" class="greeting"></div>
 
 <script>
+    /*------------------------------данные на сайт охраны-------------------------------*/
+    const token = localStorage.getItem('token'); // Получаем токен из localStorage
+    console.log('Токен:', token);
+
+async function sendDataToSecurity(data) {
+    try {
+        const response = await fetch('/guard.html', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+    throw new Error('Сетевая ошибка: ' + response.statusText);
+}
+
+const responseData = await response.json();
+console.log("результат работы send_to_secur", responseData);
+
+    } catch (error) {
+        console.error('Ошибка:', error);
+    }
+}
     /*------------------------------------ данные с сервера --------------------------------------------*/
 async function getUserProfile() {
-            const token = localStorage.getItem('token'); // Получаем токен из localStorage
-            console.log('Токен:', token);
 
             const response = await fetch('/profile', {
                 method: 'GET',
@@ -97,29 +121,7 @@ document.getElementById("startScan").addEventListener("click", function() {
     document.getElementById("stopScan").style.display = "block";});
 /*-----------------------обработчик ошибок при сканировании--------------------------*/
 
-/*------------------------------данные на сайт охраны-------------------------------*/
 
-function sendDataToSecurity(data) {
-    fetch('https://192.168.1.60:3000/guard.html', { 
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data) // Отправляем данные в формате JSON
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Ошибка при отправке данных на сайт охраны');
-        }
-        return response.json();
-    })
-    .then(responseData => {
-        console.log('Данные успешно отправлены на сайт охраны:', responseData);
-    })
-    .catch(error => {
-        console.error('Ошибка при отправке данных:', error.message);
-    });
-}
 
     
     </script>
