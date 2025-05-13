@@ -45,8 +45,8 @@ app.get('/', (req, res) => {
 
 
 app.post('/submit', (req, res) => {
-    const {name, surname, dob, class: studentClass,studentId,  username, password} = req.body;
-    const user = {name, surname, dob, class: studentClass, studentId, username, password };
+    const {name, surname, dob, class: studentClass,  username, password} = req.body;
+    const user = {name, surname, dob, class: studentClass , username, password };
     db.query('INSERT INTO students SET ?', user, (error, results) => {
         if (error) {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
@@ -73,7 +73,7 @@ app.post('/login', (req, res) => {
             return res.status(401).json({ message: 'Неверное имя пользователя или пароль' });
         }
 
-        const token = jwt.sign({ id: user.studentId, username: user.username }, secretKey, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
         res.json({ token });
     });
 });
@@ -91,10 +91,10 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Получение данных пользователя
-app.get('/profile', authenticateToken, async (req, res) => { // Добавлено async
-    const userId = req.user.id; // Извлекаем идентификатор пользователя из токена
+app.get('/profile', authenticateToken, async (req, res) => {
+    const username = req.user.username; // Извлекаем имя пользователя из токена
 
-    db.query('SELECT * FROM students WHERE studentId = ?', [userId], async (error, results) => { // Добавлено async
+    db.query('SELECT * FROM students WHERE username = ?', [username], async (error, results) => {
         if (error) {
             console.error('Ошибка при получении данных пользователя:', error);
             return res.status(500).json({ message: 'Ошибка сервера', error: error.message });
@@ -106,45 +106,55 @@ app.get('/profile', authenticateToken, async (req, res) => { // Добавлен
 
         const userData = results[0]; // Получаем данные пользователя
 
-try {
-    const response = await axios.post('https://192.168.1.60:3000/qr.html', userData, { httpsAgent: agent });
-    console.log('Response:', response.data); // Логируем ответ от сервера
-    if (response.status === 200) {
-        return res.json({ message: 'Данные успешно доставлены', data: userData });
-    } else {
-        return res.status(500).json({ message: 'Ошибка при отправке данных на другой сайт' });
-    }
-} catch (error) {
-    console.error('Ошибка при отправке данных на другой сайт:', error.response ? error.response.data : error.message);
-    return res.status(500).json({ message: 'Ошибка сервера при отправке данных', error: error.message });
-} 
+        try {
+            const response = await axios.post('https://192.168.1.60:3000/qr.html', userData, { httpsAgent: agent });
+            console.log('Response:', response.data); // Логируем ответ от сервера
+            if (response.status === 200) {
+                return res.json({ message: 'Данные успешно доставлены', data: userData });
+            } else {
+                return res.status(500).json({ message: 'Ошибка при отправке данных на другой сайт' });
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке данных на другой сайт:', error.response ? error.response.data : error.message);
+            return res.status(500).json({ message: 'Ошибка сервера при отправке данных', error: error.message });
+        }
     });
 });
 
 app.post('/qr.html', (req, res) => {
     const userData = req.body; // Получаем данные из запроса
-    console.log(userData); // Логируем данные для проверки
+    const userDataWithoutPassword = { ...userData }; // Создаем копию данных
+    delete userDataWithoutPassword.password; // Удаляем пароль из копии
+    console.log(userDataWithoutPassword); // Логируем данные для проверки
     res.send('Данные получены'); // Отправляем ответ клиенту
 });
 
 let storedData = null;
 
 app.post('/guard.html', (req, res) => {
-  console.log('Запрос на /guard.html получен');
-  const data = req.body;
-  console.log('Полученные данные:', data);
-  storedData = data; // сохраняем данные в глобальной переменной
-  res.json({ status: 'success', received: data });
-});
-
-app.get('/guard/data', (req, res) => {
-  // возвращаем данные, которые были отправлены ранее
-  if (storedData !== null) {
-    res.json({ status: 'success', received: storedData });
-  } else {
-    res.json({ status: 'error', message: 'Нет данных' });
-  }
-});
+    console.log('Запрос на /guard.html получен');
+    const data = req.body;
+    const dataWithoutPassword = { ...data }; // Создаем копию данных
+    delete dataWithoutPassword.password; // Удаляем пароль из копии
+  
+    // Форматируем дату рождения с помощью регулярных выражений
+    const dob = dataWithoutPassword.dob;
+    const formattedDob = dob.replace(/T.*$/, '').split('-').reverse().join('.');
+    dataWithoutPassword.dob = formattedDob;
+  
+    console.log('Полученные данные:', dataWithoutPassword);
+    storedData = dataWithoutPassword; // сохраняем данные в глобальной переменной
+    res.json({ status: 'success', received: dataWithoutPassword });
+  });
+  
+  app.get('/guard/data', (req, res) => {
+    // возвращаем данные, которые были отправлены ранее
+    if (storedData !== null) {
+      res.json({ status: 'success', received: storedData });
+    } else {
+      res.json({ status: 'error', message: 'Нет данных' });
+    }
+  });
 // Start the server
 
  https.createServer(options, app).listen(PORT, '192.168.1.60', () => {

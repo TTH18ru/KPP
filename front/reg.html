@@ -9,28 +9,25 @@
     <h1>Student Information Form</h1>
     <form action="/submit" method="POST">
         <label for="username">Username:</label><br>
-    <input type="text" id="username" name="username" required><br><br>
-
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password" required><br><br>
-
-
-        <label for="studentId">Student ID:</label><br>
-        <input type="text" id="studentId" name="studentId" pattern="\d{6}" required title="Please enter a 6-digit student ID"><br><br>
+        <input type="text" id="username" name="username" required pattern="[a-zA-Z0-9_]{3,20}" title="Username должен содержать от 3 до 20 символов и не содержать специальных символов"><br><br>
+    
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" title="Пароль должен содержать не менее 8 символов, включая хотя бы одну заглавную букву, одну строчную букву, одну цифру и один специальный символ, используется английская раскладка"><br><br>
+    
         <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>`
-
+        <input type="text" id="name" name="name" required pattern="^[А-Я][а-я]{2,10}" title="Имя должно содержать от 2 до 10 символов и не содержать цифр и специальных символов. Имя пишется с большой буквы"><br><br>
+    
         <label for="surname">Surname:</label><br>
-        <input type="text" id="surname" name="surname" required><br><br>
-
+        <input type="text" id="surname" name="surname" required pattern="^[А-Я][а-я]{2,10}" title="Фамилия должна содержать от 2 до 10 символов и не содержать цифр и специальных символов. Фамилия пишется с большой буквы"><br><br>
+    
         <label for="dob">Date of Birth:</label><br>
-        <input type="date" id="dob" name="dob" required><br><br>
-
+        <input type="date" id="dob" name="dob" required max="2009-01-01" title="Дата рождения должна быть не ранее 2009 года"><br><br>
+    
         <label for="class">Student Class:</label><br>
-        <input type="text" id="class" name="class" required><br><br>
-
+        <input type="text" id="class" name="class"><br><br>
+    
         <input type="submit" value="Submit">
     </form>
-    <p>Уже есть аккаунт? <a href="https://192.168.1.60:3000/aut.html">Войти</a></p> 
+    <p>Уже есть аккаунт? <a href="https://192.168.1.60:3000/aut.html">Войти</a></p>
 </body>
 </html>
