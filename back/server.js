@@ -45,8 +45,8 @@ app.get('/', (req, res) => {
 
 
 app.post('/submit', (req, res) => {
-    const {name, surname, dob, class: studentClass,  username, password} = req.body;
-    const user = {name, surname, dob, class: studentClass , username, password };
+    const {name, surname, patronymic,dob, class: studentClass,  username, password} = req.body;
+    const user = {name, surname, patronymic,dob, class: studentClass , username, password };
     db.query('INSERT INTO students SET ?', user, (error, results) => {
         if (error) {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
