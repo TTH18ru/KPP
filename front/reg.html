@@ -6,25 +6,32 @@
     <title>Student Information Form</title>
 </head>
 <body>
-    <h1>Student Information Form</h1>
+    <h1>Регистрация </h1>
     <form action="/submit" method="POST">
-        <label for="username">Username:</label><br>
+        <label for="username">Логин:</label><br>
         <input type="text" id="username" name="username" required pattern="[a-zA-Z0-9_]{3,20}" title="Username должен содержать от 3 до 20 символов и не содержать специальных символов"><br><br>
     
-        <label for="password">Password:</label><br>
+        <label for="password">Пароль:</label><br>
         <input type="password" id="password" name="password" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" title="Пароль должен содержать не менее 8 символов, включая хотя бы одну заглавную букву, одну строчную букву, одну цифру и один специальный символ, используется английская раскладка"><br><br>
     
-        <label for="name">Name:</label><br>
+        <label for="surname">Фамилия:</label><br>
+        <input type="text" id="surname" name="surname" required pattern="^[А-Я][а-я]{2,10}" title="Фамилия должна содержать от 2 до 10 символов и не содержать цифр и специальных символов. Фамилия пишется с большой буквы"><br><br>
+
+        <label for="name">Имя:</label><br>
         <input type="text" id="name" name="name" required pattern="^[А-Я][а-я]{2,10}" title="Имя должно содержать от 2 до 10 символов и не содержать цифр и специальных символов. Имя пишется с большой буквы"><br><br>
     
-        <label for="surname">Surname:</label><br>
-        <input type="text" id="surname" name="surname" required pattern="^[А-Я][а-я]{2,10}" title="Фамилия должна содержать от 2 до 10 символов и не содержать цифр и специальных символов. Фамилия пишется с большой буквы"><br><br>
+        <label for="patronymic">Отчество:</label><br>
+        <input type="text" id="patronymic" name="patronymic" required pattern="^[А-Я][а-я]{2,10}" title="Имя должно содержать от 2 до 10 символов и не содержать цифр и специальных символов. Имя пишется с большой буквы"><br><br>
     
-        <label for="dob">Date of Birth:</label><br>
+        <label for="dob">Дата рождения:</label><br>
         <input type="date" id="dob" name="dob" required max="2009-01-01" title="Дата рождения должна быть не ранее 2009 года"><br><br>
     
-        <label for="class">Student Class:</label><br>
-        <input type="text" id="class" name="class"><br><br>
+        <label for="class">Группа:</label><br>
+<select id="class" name="class">
+  <option value="П-21">П-21</option>
+  <option value="П-31">П-31</option>
+  <option value="П-41">П-41</option> 
+</select><br><br>
     
         <input type="submit" value="Submit">
     </form>
