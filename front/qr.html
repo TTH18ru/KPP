@@ -16,6 +16,27 @@
     <div id="greeting" class="greeting"></div>
 
 <script>
+    const mysql = require('mysql');
+    const db = require('../back/db');
+    db.connect((err) => {
+  if (err) {
+    console.error('Ошибка подключения к базе данных:', err);
+    return;
+  }
+  console.log('Подключение к базе данных установлено');
+});
+
+function saveQrScanLog(data) {
+  const query = 'INSERT INTO log (user_id, status) VALUES (?, ?)';
+  db.query(query, [data.id, data.status], (err, results) => {
+    if (err) {
+      console.error('Ошибка сохранения лога сканирования:', err);
+      return;
+    }
+    console.log('Лог сканирования сохранен успешно');
+  });
+}
+/*^^----------------------подключение к бд для логирования------------------------^^*/
     /*------------------------------данные на сайт охраны-------------------------------*/
     const token = localStorage.getItem('token'); // Получаем токен из localStorage
     console.log('Токен:', token);
@@ -88,21 +109,27 @@ document.getElementById("startScan").addEventListener("click", function() {
         (decodedText, decodedResult) => {
             console.log("Отсканированный текст:", decodedText); // Логирование отсканированного текста
 /*-----------------внешние настройки-----------------------------*/
-
-            // Проверяем, содержит ли QR-код текст "kpp"
-            if (decodedText.includes("kpp")) {
-                console.log("QR-код содержит 'kpp'.");
-                getUserProfile()
-                .then(data => {
-                    console.log('Данные профиля:', data);
-                    
-                    // Отправляем все данные профиля на сайт охраны
-                    sendDataToSecurity(data.data); // Предполагается, что все нужные данные находятся в data.data
-                })
+if (decodedText.includes("input")) {
+  console.log("QR-код содержит 'input'.");
+  getUserProfile()
+    .then(data => {
+      console.log('Данные профиля:', data);
+      
+      // Отправляем все данные профиля на сайт охраны
+      sendDataToSecurity(data.data); // Предполагается, что все нужные данные находятся в data.data
+      
+      // Сохраняем лог сканирования в базе данных MySQL
+      const qrScanLog = {
+        user_id: data.data.id,
+        status: decodedText
+      };
+      saveQrScanLog(qrScanLog);
+    })
+}
 /*---------------логика при успешном сканировании-------------------*/
 
-            } else {
-                console.log("QR-код не содержит 'kpp'."); }
+             else {
+                console.log("QR-код не содержит нужные данные."); }
             html5QrCode.stop().then((ignore) => {
                 console.log("Сканирование остановлено."); // Логирование остановки сканирования
                 document.getElementById("startScan").style.display = "block";
