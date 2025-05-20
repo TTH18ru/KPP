@@ -86,8 +86,11 @@ app.post('/log', (req, res) => {
     }
   
     const data = req.body;
-    const query = `INSERT INTO log (name, surname, patronymic, class, status) VALUES (?, ?, ?, ?, ?)`;
-    db.query(query, [data.name, data.surname, data.patronymic, data.class, data.status], (err, results) => {
+    const currentDate = new Date();
+    const tableName = `log_${currentDate.getDate()}_${currentDate.getMonth() + 1}_${currentDate.getFullYear()}`;
+  
+    const query = `INSERT INTO ${tableName} (name, surname, patronymic, class, status, time) VALUES (?, ?, ?, ?, ?, ?)`;
+    db.query(query, [data.name, data.surname, data.patronymic, data.class, data.status, new Date()], (err, results) => {
       if (err) {
         console.error('Ошибка записи данных:', err);
         return res.status(500).send({ message: 'Ошибка записи данных' });
@@ -95,7 +98,21 @@ app.post('/log', (req, res) => {
       res.send({ message: 'Данные записаны успешно' });
     });
   });
-      
+
+
+  app.post('/open-shift', (req, res) => {
+  const currentDate = new Date();
+  const tableName = `log_${currentDate.getDate()}_${currentDate.getMonth() + 1}_${currentDate.getFullYear()}`;
+
+  const query = `CREATE TABLE IF NOT EXISTS ${tableName} (id INT AUTO_INCREMENT, name VARCHAR(255), surname VARCHAR(255), patronymic VARCHAR(255), class VARCHAR(255), status VARCHAR(255), time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id))`;
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Ошибка создания таблицы:', err);
+      return res.status(500).send({ message: 'Ошибка создания таблицы' });
+    }
+    res.send({ message: 'Таблица создана успешно' });
+  });
+});    
 
 
 const authenticateToken = (req, res, next) => {

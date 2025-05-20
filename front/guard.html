@@ -9,8 +9,11 @@
 <body>
 <h1>Охрана</h1>
 <div id="output"></div>
+<button id="open-shift">Открыть смену</button>
+
 
 <script>
+
  fetch('/guard/data', {
   method: 'GET',
   headers: {
@@ -30,6 +33,23 @@
   }
 })
 .catch(error => console.error('Ошибка:', error));
+
+document.getElementById('open-shift').addEventListener('click', () => {
+  fetch('/open-shift', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token}'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+  })
+  .catch(error => {
+    console.error(error);
+  });
+});
 </script>
 </body>
 </html>
