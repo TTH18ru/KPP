@@ -95,10 +95,21 @@ app.post('/log', (req, res) => {
         console.error('Ошибка записи данных:', err);
         return res.status(500).send({ message: 'Ошибка записи данных' });
       }
-      res.send({ message: 'Данные записаны успешно' });
+  
+      // Дублируем данные в таблицу log
+      const logQuery = `INSERT INTO log (name, surname, patronymic, class, status, time) VALUES (?, ?, ?, ?, ?, ?)`;
+      db.query(logQuery, [data.name, data.surname, data.patronymic, data.class, data.status, new Date()], (err, results) => {
+        if (err) {
+          console.error('Ошибка записи данных в таблицу log:', err);
+          // Вы можете выбрать, что делать в случае ошибки записи в таблицу log
+          // Например, вы можете отправить ошибку клиенту или просто проигнорировать ее
+          res.send({ message: 'Данные записаны успешно, но произошла ошибка при записи в таблицу log' });
+        } else {
+          res.send({ message: 'Данные записаны успешно' });
+        }
+      });
     });
   });
-
 
   app.post('/open-shift', (req, res) => {
   const currentDate = new Date();

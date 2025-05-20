@@ -7,10 +7,39 @@
     <link rel="stylesheet" href="styles.css"> <!-- Подключаем CSS файл -->
 </head>
 <body>
-<h1>Охрана</h1>
+<h1>Данные ученика</h1>
 <div id="output"></div>
 <button id="open-shift">Открыть смену</button>
 
+
+<div class="container">
+    <h2>Данные о посещаемости ученика</h2>
+    <form id="query-form">
+      <div class="form-group">
+        <label for="fio">ФИО ученика:</label>
+        <input type="text" id="fio" name="fio">
+      </div>
+      <div class="form-group">
+        <label for="start-date">Начальная дата запроса:</label>
+        <input type="date" id="start-date" name="start-date">
+      </div>
+      <div class="form-group">
+        <label for="end-date">Конечная дата запроса:</label>
+        <input type="date" id="end-date" name="end-date">
+      </div>
+      <div class="form-group">
+        <label for="output-format">Событие:</label>
+        <select id="output-format" name="output-format">
+          <option value="inside">Вход в техникум</option>
+          <option value="outside">Выход из техникума</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button class="btn" type="submit">Выполнить запрос</button>
+      </div>
+    </form>
+    <div id="result"></div>
+  </div>
 
 <script>
 
@@ -50,6 +79,48 @@ document.getElementById('open-shift').addEventListener('click', () => {
     console.error(error);
   });
 });
+
+const submitBtn = document.getElementById('submit-btn');
+    const resultDiv = document.getElementById('result');
+
+    submitBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const fio = document.getElementById('fio').value;
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+      const outputFormat = document.getElementById('output-format').value;
+
+      // Отправляем запрос на сервер
+      fetch('/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fio,
+          startDate,
+          endDate,
+          outputFormat
+        })
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        // Выводим результат
+        resultDiv.innerHTML = '';
+        data.forEach((item) => {
+          const div = document.createElement('div');
+          div.innerHTML = `
+            <p>Дата: ${item.date}</p>
+            <p>Количество посещений: ${item.visits}</p>
+            <p>Формат: ${item.format}</p>
+          `;
+          resultDiv.appendChild(div);
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    });
 </script>
 </body>
 </html>
