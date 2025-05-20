@@ -78,6 +78,26 @@ app.post('/login', (req, res) => {
     });
 });
 
+
+app.post('/log', (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    if (!token) {
+      return res.status(401).send({ message: 'Токен не предоставлен' });
+    }
+  
+    const data = req.body;
+    const query = `INSERT INTO log (name, surname, patronymic, class, status) VALUES (?, ?, ?, ?, ?)`;
+    db.query(query, [data.name, data.surname, data.patronymic, data.class, data.status], (err, results) => {
+      if (err) {
+        console.error('Ошибка записи данных:', err);
+        return res.status(500).send({ message: 'Ошибка записи данных' });
+      }
+      res.send({ message: 'Данные записаны успешно' });
+    });
+  });
+      
+
+
 const authenticateToken = (req, res, next) => {
     const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1]; // Получаем токен из заголовка
 
