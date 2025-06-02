@@ -52,7 +52,7 @@ app.post('/submit', (req, res) => {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
             return res.status(400).send('Error registering user');
         }
-            res.redirect('https://192.168.1.61:3000/aut.html'); }); }); 
+            res.redirect('https://192.168.127.96:3000/aut.html'); }); }); 
             /*регистрация */
 
 app.post('/login', (req, res) => {
@@ -155,7 +155,7 @@ app.get('/profile', authenticateToken, async (req, res) => {
         const userData = results[0]; // Получаем данные пользователя
 
         try {
-            const response = await axios.post('https://192.168.1.61:3000/qr.html', userData, { httpsAgent: agent });
+            const response = await axios.post('https://192.168.127.96:3000/qr.html', userData, { httpsAgent: agent });
             console.log('Response:', response.data); // Логируем ответ от сервера
             if (response.status === 200) {
                 return res.json({ message: 'Данные успешно доставлены', data: userData });
@@ -207,6 +207,34 @@ app.post('/query', (req, res) => {
   });
 });
 
+app.post('/current-students-count', (req, res) => {
+  const query = `
+    SELECT COUNT(*) AS count
+    FROM (
+      SELECT id, status
+      FROM log
+      WHERE (id, time) IN (
+        SELECT id, MAX(time)
+        FROM log
+        GROUP BY id
+      )
+    ) AS latest_status
+    WHERE status = 'inside'
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Ошибка выполнения запроса:', err);
+      res.status(500).json({ error: 'Ошибка выполнения запроса' });
+      return;
+    }
+
+    const count = results[0].count; // Получаем количество студентов
+    res.json({ currentStudentsCount: count });
+  });
+});
+
+
 let storedData = null;
 
 app.post('/guard.html', (req, res) => {
@@ -235,6 +263,6 @@ app.post('/guard.html', (req, res) => {
   });
 // Start the server
 
- https.createServer(options, app).listen(PORT, '192.168.1.61', () => {
-        console.log(`Server is running on https://192.168.1.61:${PORT}`);
+ https.createServer(options, app).listen(PORT, '192.168.127.96', () => {
+        console.log(`Server is running on https://192.168.127.96:${PORT}`);
 });

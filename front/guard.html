@@ -12,6 +12,10 @@
 <button id="open-shift">Открыть смену</button>
 
 
+ <button id="getCurrentStudentsCount">Получить количество студентов</button>
+    <div id="result"></div>
+
+
 <div class="container">
     <h2>Данные о посещаемости ученика</h2>
     <form id="query-form">
@@ -62,6 +66,30 @@
   }
 })
 .catch(error => console.error('Ошибка:', error));
+
+
+document.getElementById('getCurrentStudentsCount').addEventListener('click', () => {
+    fetch('/current-students-count', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка сети');
+        }
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById('result').innerText = `Количество студентов на территории: ${data.currentStudentsCount}`;
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        document.getElementById('result').innerText = 'Произошла ошибка при получении данных.';
+    });
+});
+
 
 document.getElementById('open-shift').addEventListener('click', () => {
   fetch('/open-shift', {
