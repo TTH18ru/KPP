@@ -177,6 +177,36 @@ app.post('/qr.html', (req, res) => {
     res.send('Данные получены'); // Отправляем ответ клиенту
 });
 
+app.post('/query', (req, res) => {
+  const { fio, startDate, endDate, outputFormat } = req.body;
+
+  const [name, surname, patronymic] = fio.split(' ');
+  const query = `
+    SELECT time, status
+    FROM log
+    WHERE surname = ? AND name = ? AND patronymic = ? AND time BETWEEN ? AND ?
+  `;
+  const params = [name, surname, patronymic, startDate, endDate];
+
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error('Ошибка выполнения запроса:', err);
+      res.status(500).json({ error: 'Ошибка выполнения запроса' });
+      return;
+    }
+
+    const response = results.map(item => {
+      return {
+        date: item.time,
+        visits: item.status === 'inside' ? 'Вход' : 'Выход',
+        format: outputFormat
+      };
+    });
+
+    res.json(response);
+  });
+});
+
 let storedData = null;
 
 app.post('/guard.html', (req, res) => {

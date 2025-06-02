@@ -35,7 +35,7 @@
         </select>
       </div>
       <div class="form-group">
-        <button class="btn" type="submit">Выполнить запрос</button>
+        <button class="btn" type="submit" id="submit-btn">Выполнить запрос</button>
       </div>
     </form>
     <div id="result"></div>
@@ -87,7 +87,7 @@ const submitBtn = document.getElementById('submit-btn');
       e.preventDefault();
       const fio = document.getElementById('fio').value;
       const startDate = document.getElementById('start-date').value;
-      const endDate = document.getElementById('end-date').value;
+      const endDate = document.getElementById('end-date').value; 
       const outputFormat = document.getElementById('output-format').value;
 
       // Отправляем запрос на сервер
