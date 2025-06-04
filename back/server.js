@@ -52,7 +52,7 @@ app.post('/submit', (req, res) => {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
             return res.status(400).send('Error registering user');
         }
-            res.redirect('https://192.168.127.96:3000/aut.html'); }); }); 
+            res.redirect('https://192.168.1.61:3000/aut.html'); }); }); 
             /*регистрация */
 
 app.post('/login', (req, res) => {
@@ -80,22 +80,34 @@ app.post('/login', (req, res) => {
 
 
 app.post('/log', (req, res) => {
-    const token = req.headers.authorization.split(' ')[1];
-    if (!token) {
-      return res.status(401).send({ message: 'Токен не предоставлен' });
+  const token = req.headers.authorization.split(' ')[1];
+  if (!token) {
+    return res.status(401).send({ message: 'Токен не предоставлен' });
+  }
+
+  const data = req.body;
+  const currentDate = new Date();
+  const tableName = `log_${currentDate.getDate()}_${currentDate.getMonth() + 1}_${currentDate.getFullYear()}`;
+
+  // Проверка на существование записи со статусом 'inside' для студента
+  const checkQuery = `SELECT * FROM log WHERE name = ? AND surname = ? AND patronymic = ? AND class = ? AND status = 'inside' AND DATE(time) = ? AND NOT EXISTS (SELECT 1 FROM log WHERE name = ? AND surname = ? AND patronymic = ? AND class = ? AND status = 'outside' AND time > (SELECT MAX(time) FROM log WHERE name = ? AND surname = ? AND patronymic = ? AND class = ? AND status = 'inside' AND DATE(time) = ?))`;
+  db.query(checkQuery, [data.name, data.surname, data.patronymic, data.class, currentDate.toISOString().split('T')[0], data.name, data.surname, data.patronymic, data.class, data.name, data.surname, data.patronymic, data.class, currentDate.toISOString().split('T')[0]], (err, results) => {
+    if (err) {
+      console.error('Ошибка проверки данных:', err);
+      return res.status(500).send({ message: 'Ошибка проверки данных' });
     }
-  
-    const data = req.body;
-    const currentDate = new Date();
-    const tableName = `log_${currentDate.getDate()}_${currentDate.getMonth() + 1}_${currentDate.getFullYear()}`;
-  
+
+    if (results.length > 0 && data.status === 'inside') {
+      return res.status(400).send({ message: 'Нельзя добавить дублирующую запись со статусом "inside"' });
+    }
+
     const query = `INSERT INTO ${tableName} (name, surname, patronymic, class, status, time) VALUES (?, ?, ?, ?, ?, ?)`;
     db.query(query, [data.name, data.surname, data.patronymic, data.class, data.status, new Date()], (err, results) => {
       if (err) {
         console.error('Ошибка записи данных:', err);
         return res.status(500).send({ message: 'Ошибка записи данных' });
       }
-  
+
       // Дублируем данные в таблицу log
       const logQuery = `INSERT INTO log (name, surname, patronymic, class, status, time) VALUES (?, ?, ?, ?, ?, ?)`;
       db.query(logQuery, [data.name, data.surname, data.patronymic, data.class, data.status, new Date()], (err, results) => {
@@ -110,6 +122,8 @@ app.post('/log', (req, res) => {
       });
     });
   });
+});
+
 
   app.post('/open-shift', (req, res) => {
   const currentDate = new Date();
@@ -155,7 +169,7 @@ app.get('/profile', authenticateToken, async (req, res) => {
         const userData = results[0]; // Получаем данные пользователя
 
         try {
-            const response = await axios.post('https://192.168.127.96:3000/qr.html', userData, { httpsAgent: agent });
+            const response = await axios.post('https://192.168.1.61:3000/qr.html', userData, { httpsAgent: agent });
             console.log('Response:', response.data); // Логируем ответ от сервера
             if (response.status === 200) {
                 return res.json({ message: 'Данные успешно доставлены', data: userData });
@@ -208,18 +222,25 @@ app.post('/query', (req, res) => {
 });
 
 app.post('/current-students-count', (req, res) => {
+  // Запрос выбирает для каждого студента (группировка по name, surname, patronymic, class)
+  // его последнюю запись за текущий день, затем фильтрует записи со статусом 'inside'
   const query = `
-    SELECT COUNT(*) AS count
-    FROM (
-      SELECT id, status
-      FROM log
-      WHERE (id, time) IN (
-        SELECT id, MAX(time)
+    SELECT COUNT(*) AS count FROM (
+      SELECT l.name, l.surname, l.patronymic, l.class
+      FROM log AS l
+      INNER JOIN (
+        SELECT name, surname, patronymic, class, MAX(time) AS last_time
         FROM log
-        GROUP BY id
-      )
-    ) AS latest_status
-    WHERE status = 'inside'
+        WHERE DATE(time) = CURDATE()
+        GROUP BY name, surname, patronymic, class
+      ) AS last_record 
+      ON l.name = last_record.name
+         AND l.surname = last_record.surname
+         AND l.patronymic = last_record.patronymic
+         AND l.class = last_record.class
+         AND l.time = last_record.last_time
+      WHERE l.status = 'inside'
+    ) AS subquery;
   `;
 
   db.query(query, (err, results) => {
@@ -229,10 +250,11 @@ app.post('/current-students-count', (req, res) => {
       return;
     }
 
-    const count = results[0].count; // Получаем количество студентов
+    const count = results[0].count;
     res.json({ currentStudentsCount: count });
   });
 });
+
 
 
 let storedData = null;
@@ -263,6 +285,6 @@ app.post('/guard.html', (req, res) => {
   });
 // Start the server
 
- https.createServer(options, app).listen(PORT, '192.168.127.96', () => {
-        console.log(`Server is running on https://192.168.127.96:${PORT}`);
+ https.createServer(options, app).listen(PORT, '192.168.1.61', () => {
+        console.log(`Server is running on https://192.168.1.61:${PORT}`);
 });

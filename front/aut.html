@@ -28,7 +28,7 @@
     const username = document.getElementById('username').value; 
     const password = document.getElementById('password').value; 
   
-    fetch('https://192.168.127.96:3000/login', {
+    fetch('https://192.168.1.61:3000/login', {
     method: 'POST',
     headers: {'Content-Type': 'application/json',},
     body: JSON.stringify({ username, password }),
@@ -48,7 +48,7 @@
 .then(data => {
     if (data.token) {
         localStorage.setItem('token', data.token); // Сохраняем токен
-        window.location.href = 'https://192.168.127.96:3000/qr.html'; // Пример перенаправления
+        window.location.href = 'https://192.168.1.61:3000/qr.html'; // Пример перенаправления
     } else {    console.log("токен не работает");   }})
     /*обработка ответа, редирект*/
 
@@ -59,7 +59,7 @@
                 </script>
 
         </form>
-        <p>Нет аккаунта? <a href="https://192.168.127.96:3000/reg.html">Зарегистрируйтесь</a></p> <!-- Ссылка на страницу регистрации -->
+        <p>Нет аккаунта? <a href="https://192.168.1.61:3000/reg.html">Зарегистрируйтесь</a></p> <!-- Ссылка на страницу регистрации -->
     </div>
 </body>
 </html>
