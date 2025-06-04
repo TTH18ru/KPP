@@ -283,8 +283,31 @@ app.post('/guard.html', (req, res) => {
       res.json({ status: 'error', message: 'Нет данных' });
     }
   });
-// Start the server
 
+// Эндпоинт для получения студентов по группе
+app.post('/group', (req, res) => {
+  const group = req.body.group;
+
+  if (!group) {
+    return res.status(400).json({ error: 'Параметр group обязателен' });
+  }
+
+  const query = `
+    SELECT id, name, surname, patronymic, dob, class, username
+    FROM students
+    WHERE class = ?
+  `;
+
+  db.query(query, [group], (err, results) => {
+    if (err) {
+      console.error('Ошибка выполнения запроса:', err);
+      return res.status(500).json({ error: 'Ошибка выполнения запроса' });
+    }
+    res.json(results);
+  });
+});
+
+// Start the server
  https.createServer(options, app).listen(PORT, '192.168.1.61', () => {
         console.log(`Server is running on https://192.168.1.61:${PORT}`);
 });

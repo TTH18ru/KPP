@@ -4,7 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сайт охраны</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Подключаем CSS файл -->
+    <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .student {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 5px 0;
+    }
+    </style>
 </head>
 <body>
 <h1>Данные ученика</h1>
@@ -12,39 +22,28 @@
 <button id="open-shift">Открыть смену</button>
 
 
- <button id="getCurrentStudentsCount">Получить количество студентов</button>
+ <button id="getCurrentStudentsCount">Кол-во студентов в техникуме:</button>
     <div id="result"></div>
 
 
-<div class="container">
-    <h2>Данные о посещаемости ученика</h2>
-    <form id="query-form">
-      <div class="form-group">
-        <label for="fio">ФИО ученика:</label>
-        <input type="text" id="fio" name="fio">
-      </div>
-      <div class="form-group">
-        <label for="start-date">Начальная дата запроса:</label>
-        <input type="date" id="start-date" name="start-date">
-      </div>
-      <div class="form-group">
-        <label for="end-date">Конечная дата запроса:</label>
-        <input type="date" id="end-date" name="end-date">
-      </div>
-      <div class="form-group">
-        <label for="output-format">Событие:</label>
-        <select id="output-format" name="output-format">
-          <option value="inside">Вход в техникум</option>
-          <option value="outside">Выход из техникума</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <button class="btn" type="submit" id="submit-btn">Выполнить запрос</button>
-      </div>
-    </form>
+  <div class="container">
+    <h1>Выбор группы и поиск студентов</h1>
+    
+    <!-- Блок выбора группы -->
+    <div class="form-section">
+      <label for="group-select">Выберите группу:</label>
+      <select id="group-select">
+        <option value="">-- Выберите группу --</option>
+        <option value="П-21">П-21</option>
+        <option value="П-31">П-31</option>
+        <option value="П-41">П-41</option>
+      </select>
+      <button id="load-students-btn">Показать студентов</button>
+    </div>
+    
+    <!-- Блок вывода данных студентов располагается ниже формы -->
     <div id="result"></div>
   </div>
-
 <script>
 
  fetch('/guard/data', {
@@ -108,47 +107,60 @@ document.getElementById('open-shift').addEventListener('click', () => {
   });
 });
 
-const submitBtn = document.getElementById('submit-btn');
+ const groupSelect = document.getElementById('group-select');
+    const loadStudentsBtn = document.getElementById('load-students-btn');
     const resultDiv = document.getElementById('result');
 
-    submitBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const fio = document.getElementById('fio').value;
-      const startDate = document.getElementById('start-date').value;
-      const endDate = document.getElementById('end-date').value; 
-      const outputFormat = document.getElementById('output-format').value;
+    // Обработка клика по кнопке "Показать студентов"
+    loadStudentsBtn.addEventListener('click', function() {
+      const selectedGroup = groupSelect.value;
+      
+      // Очищаем предыдущие результаты
+      resultDiv.innerHTML = '';
 
-      // Отправляем запрос на сервер
-      fetch('/query', {
+      if (!selectedGroup) {
+        resultDiv.innerHTML = '<p>Пожалуйста, выберите группу</p>';
+        return;
+      }
+
+      // Отправляем запрос на сервер для получения студентов выбранной группы
+      fetch('/group', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          fio,
-          startDate,
-          endDate,
-          outputFormat
-        })
+        body: JSON.stringify({ group: selectedGroup })
       })
-      .then((response) => response.json())
-      .then((data) => {
-        // Выводим результат
-        resultDiv.innerHTML = '';
-        data.forEach((item) => {
-          const div = document.createElement('div');
-          div.innerHTML = `
-            <p>Дата: ${item.date}</p>
-            <p>Количество посещений: ${item.visits}</p>
-            <p>Формат: ${item.format}</p>
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Ошибка получения студентов");
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.length === 0) {
+          resultDiv.innerHTML = '<p>Студенты в данной группе не найдены.</p>';
+          return;
+        }
+        // Выводим полученных студентов, добавляя каждый в блок resultDiv
+        data.forEach(student => {
+          const studentDiv = document.createElement('div');
+          studentDiv.classList.add('student');
+          studentDiv.innerHTML = `
+            <p><strong>ФИО:</strong> ${student.surname} ${student.name} ${student.patronymic}</p>
+            <p><strong>Дата рождения:</strong> ${student.dob}</p>
+            <p><strong>Группа:</strong> ${student.class}</p>
+            <p><strong>Username:</strong> ${student.username}</p>
           `;
-          resultDiv.appendChild(div);
+          resultDiv.appendChild(studentDiv);
         });
       })
-      .catch((error) => {
+      .catch(error => {
         console.error(error);
+        resultDiv.innerHTML = '<p>Произошла ошибка при получении данных студентов.</p>';
       });
     });
+  </script>
 </script>
 </body>
 </html>
