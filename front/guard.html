@@ -27,7 +27,7 @@
 
 
   <div class="container">
-    <h1>Выбор группы и поиск студентов</h1>
+    <h1>Список студентов</h1>
     
     <!-- Блок выбора группы -->
     <div class="form-section">
@@ -44,6 +44,18 @@
     <!-- Блок вывода данных студентов располагается ниже формы -->
     <div id="result"></div>
   </div>
+
+ <h1>Запрос данных о посещении</h1>
+    <label for="date">Дата:</label>
+    <input type="date" id="date" required>
+    
+    <label for="username">Никнейм:</label>
+    <input type="text" id="username" required>
+    
+    <button onclick="fetchLogData()">Получить данные</button>
+    
+    <h2>Результаты:</h2>
+    <pre id="results"></pre>
 <script>
 
  fetch('/guard/data', {
@@ -160,6 +172,22 @@ document.getElementById('open-shift').addEventListener('click', () => {
         resultDiv.innerHTML = '<p>Произошла ошибка при получении данных студентов.</p>';
       });
     });
+
+    async function fetchLogData() {
+            const date = document.getElementById('date').value;
+            const username = document.getElementById('username').value;
+
+            const response = await fetch('/get-log-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ date, username }),
+            });
+
+            const data = await response.json();
+            document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+        }
   </script>
 </script>
 </body>

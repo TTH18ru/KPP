@@ -26,6 +26,7 @@ const db = mysql.createConnection({
     database: 'KPP'  });
 /*база*/
 
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../front')));
 app.use(express.json());
@@ -52,7 +53,7 @@ app.post('/submit', (req, res) => {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
             return res.status(400).send('Error registering user');
         }
-            res.redirect('https://192.168.1.61:3000/aut.html'); }); }); 
+            res.redirect('https://192.168.127.96:3000/aut.html'); }); }); 
             /*регистрация */
 
 app.post('/login', (req, res) => {
@@ -169,7 +170,7 @@ app.get('/profile', authenticateToken, async (req, res) => {
         const userData = results[0]; // Получаем данные пользователя
 
         try {
-            const response = await axios.post('https://192.168.1.61:3000/qr.html', userData, { httpsAgent: agent });
+            const response = await axios.post('https://192.168.127.96:3000/qr.html', userData, { httpsAgent: agent });
             console.log('Response:', response.data); // Логируем ответ от сервера
             if (response.status === 200) {
                 return res.json({ message: 'Данные успешно доставлены', data: userData });
@@ -307,7 +308,46 @@ app.post('/group', (req, res) => {
   });
 });
 
+function getLogData(date, username, callback) {
+    // Получаем id студента по никнейму
+    db.query("SELECT id FROM students WHERE username = ?", [username], (err, results) => {
+        if (err) {
+            return callback(err);
+        }
+        if (results.length === 0) {
+            return callback(null, null); // Студент не найден
+        }
+
+        const studentId = results[0].id;
+
+        // Получаем данные о входе и выходе
+        db.query(`
+            SELECT status, time FROM log 
+            WHERE class = ? AND DATE(time) = ?
+        `, [studentId, date], (err, logs) => {
+            if (err) {
+                return callback(err);
+            }
+            callback(null, logs);
+        });
+    });
+}
+
+// Обработка POST-запроса
+app.post('/get-log-data', (req, res) => {
+    const { date, username } = req.body;
+
+    getLogData(date, username, (err, logs) => {
+        if (err) {
+            return res.status(500).json({ error: 'Ошибка сервера' });
+        }
+        if (!logs) {
+            return res.status(404).json({ error: 'Студент не найден' });
+        }
+        res.json(logs);
+    });
+});
 // Start the server
- https.createServer(options, app).listen(PORT, '192.168.1.61', () => {
-        console.log(`Server is running on https://192.168.1.61:${PORT}`);
+ https.createServer(options, app).listen(PORT, '192.168.127.96', () => {
+        console.log(`Server is running on https://192.168.127.96:${PORT}`);
 });
