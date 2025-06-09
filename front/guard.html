@@ -182,14 +182,13 @@ document.getElementById('open-shift').addEventListener('click', () => {
     });
 
 
-    const form   = document.getElementById('logForm');
-    const output = document.getElementById('results');
+    const form    = document.getElementById('logForm');
+    const results = document.getElementById('results');
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
-      output.textContent = 'Загрузка...';
+      results.textContent = 'Загрузка…';
 
-      // Собираем значения из полей
       const payload = {
         surname: document.getElementById('surname').value.trim(),
         name:    document.getElementById('name').value.trim(),
@@ -204,30 +203,74 @@ document.getElementById('open-shift').addEventListener('click', () => {
           body: JSON.stringify(payload)
         });
 
-        // Обработка кодов ответа
         if (resp.status === 400) {
           const err = await resp.json();
-          output.textContent = `Ошибка: ${err.error}`;
+          results.innerHTML = `<div class="error">Ошибка: ${err.error}</div>`;
           return;
         }
         if (resp.status === 404) {
-          output.textContent = 'Записи не найдены';
+          results.innerHTML = `<div class="error">Записи не найдены</div>`;
           return;
         }
         if (!resp.ok) {
-          output.textContent = `Неизвестная ошибка: ${resp.status}`;
+          results.innerHTML = `<div class="error">Сервер вернул ошибку ${resp.status}</div>`;
           return;
         }
 
-        // Успешно: парсим JSON и выводим
+        // Успешно: получили JSON
         const data = await resp.json();
-        output.textContent = JSON.stringify(data, null, 2);
+        renderTable(data);
 
       } catch (err) {
         console.error(err);
-        output.textContent = 'Ошибка сети или сервера';
+        results.innerHTML = `<div class="error">Ошибка сети или сервера</div>`;
       }
     });
+
+    // Функция, рисующая таблицу
+    function renderTable(data) {
+      // Заголовок
+      let html = `
+        <table>
+          <caption>Логи студента ${data.surname} ${data.name}, класс ${data.class} за ${data.date}</caption>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Время</th>
+              <th>Статус</th>
+              <th>ФИО</th>
+              <th>Класс</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      data.entries.forEach((entry, i) => {
+        // Преобразуем время в локальное отображение
+        const time = new Date(entry.time).toLocaleTimeString('ru-RU', {
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+
+        const fio = `${entry.surname} ${entry.name} ${entry.patronymic}`;
+
+        html += `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${time}</td>
+            <td>${entry.status}</td>
+            <td>${fio}</td>
+            <td>${entry.class}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+          </tbody>
+        </table>
+      `;
+
+      results.innerHTML = html;
+    }
   </script>
 </script>
 </body>
