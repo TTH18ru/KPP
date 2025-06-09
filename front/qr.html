@@ -100,7 +100,7 @@ if (decodedText.includes("input")) {
       sendDataToSecurity(data.data); // Предполагается, что все нужные данные находятся в data.data
       
       // Отправляем данные на сервер для сохранения в БД
-      fetch('https://192.168.127.96:3000/log', {
+      fetch('https://192.168.0.17:3000/log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ if (decodedText.includes("input")) {
       sendDataToSecurity(data.data); // Предполагается, что все нужные данные находятся в data.data
       
       // Отправляем данные на сервер для сохранения в БД
-      fetch('https://192.168.127.96:3000/log', {
+      fetch('https://192.168.0.17:3000/log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

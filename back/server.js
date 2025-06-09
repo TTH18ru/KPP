@@ -53,7 +53,7 @@ app.post('/submit', (req, res) => {
             console.error('Error registering user:', error); // Логирование ошибок регистрации
             return res.status(400).send('Error registering user');
         }
-            res.redirect('https://192.168.127.96:3000/aut.html'); }); }); 
+            res.redirect('https://192.168.0.17:3000/aut.html'); }); }); 
             /*регистрация */
 
 app.post('/login', (req, res) => {
@@ -170,7 +170,7 @@ app.get('/profile', authenticateToken, async (req, res) => {
         const userData = results[0]; // Получаем данные пользователя
 
         try {
-            const response = await axios.post('https://192.168.127.96:3000/qr.html', userData, { httpsAgent: agent });
+            const response = await axios.post('https://192.168.0.17:3000/qr.html', userData, { httpsAgent: agent });
             console.log('Response:', response.data); // Логируем ответ от сервера
             if (response.status === 200) {
                 return res.json({ message: 'Данные успешно доставлены', data: userData });
@@ -221,6 +221,66 @@ app.post('/query', (req, res) => {
     res.json(response);
   });
 });
+
+
+// 3. Эндпоинт для получения логов
+app.post('/get-log-data', (req, res) => {
+  const { surname, name, class: group, date } = req.body;
+
+  // 3.1. Валидация входных данных
+  if (!surname || !name || !group || !date) {
+    return res.status(400).json({ error: 'Не указаны обязательные поля' });
+  }
+
+  // 3.2. Границы по дате (весь день)
+  const from = `${date} 00:00:00`;
+  const to   = `${date} 23:59:59.999`;
+
+  // 3.3. SQL-запрос: ищем точно по фамилии, имени, классу и диапазону времени
+  const sql = `
+    SELECT id, name, surname, patronymic, class, status, time
+    FROM log
+    WHERE surname = ?
+      AND name    = ?
+      AND class   = ?
+      AND time   >= ?
+      AND time   < ?
+    ORDER BY time ASC
+  `;
+  const params = [surname, name, group, from, to];
+
+  // 3.4. Выполняем запрос
+  db.query(sql, params, (err, rows) => {
+    if (err) {
+      console.error('Ошибка при запросе к БД:', err);
+      return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+    }
+    if (!rows.length) {
+      // Ничего не найдено
+      return res.sendStatus(404);
+    }
+
+    // Отдаём найденные записи
+    return res.json({
+      date,
+      surname,
+      name,
+      class: group,
+      entries: rows.map(r => ({
+        id:         r.id,
+        name:       r.name,
+        surname:    r.surname,
+        patronymic: r.patronymic,
+        class:      r.class,
+        status:     r.status,
+        time:       r.time  // JS Date-string или ISO, в зависимости от MySQL-конфига
+      }))
+    });
+  });
+});
+
+// 4. Раздаём клиентские файлы (index.html и т.д.) из той же папки
+app.use(express.static(path.join(__dirname)));
 
 app.post('/current-students-count', (req, res) => {
   // Запрос выбирает для каждого студента (группировка по name, surname, patronymic, class)
@@ -308,46 +368,9 @@ app.post('/group', (req, res) => {
   });
 });
 
-function getLogData(date, username, callback) {
-    // Получаем id студента по никнейму
-    db.query("SELECT id FROM students WHERE username = ?", [username], (err, results) => {
-        if (err) {
-            return callback(err);
-        }
-        if (results.length === 0) {
-            return callback(null, null); // Студент не найден
-        }
 
-        const studentId = results[0].id;
 
-        // Получаем данные о входе и выходе
-        db.query(`
-            SELECT status, time FROM log 
-            WHERE class = ? AND DATE(time) = ?
-        `, [studentId, date], (err, logs) => {
-            if (err) {
-                return callback(err);
-            }
-            callback(null, logs);
-        });
-    });
-}
-
-// Обработка POST-запроса
-app.post('/get-log-data', (req, res) => {
-    const { date, username } = req.body;
-
-    getLogData(date, username, (err, logs) => {
-        if (err) {
-            return res.status(500).json({ error: 'Ошибка сервера' });
-        }
-        if (!logs) {
-            return res.status(404).json({ error: 'Студент не найден' });
-        }
-        res.json(logs);
-    });
-});
 // Start the server
- https.createServer(options, app).listen(PORT, '192.168.127.96', () => {
-        console.log(`Server is running on https://192.168.127.96:${PORT}`);
+ https.createServer(options, app).listen(PORT, '192.168.0.17', () => {
+        console.log(`Server is running on https://192.168.0.17:${PORT}`);
 });

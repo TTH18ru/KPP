@@ -41,21 +41,29 @@
       <button id="load-students-btn">Показать студентов</button>
     </div>
     
-    <!-- Блок вывода данных студентов располагается ниже формы -->
-    <div id="result"></div>
-  </div>
+   <h1>Поиск логов по студенту</h1>
 
- <h1>Запрос данных о посещении</h1>
-    <label for="date">Дата:</label>
-    <input type="date" id="date" required>
-    
-    <label for="username">Никнейм:</label>
-    <input type="text" id="username" required>
-    
-    <button onclick="fetchLogData()">Получить данные</button>
-    
-    <h2>Результаты:</h2>
-    <pre id="results"></pre>
+  <form id="logForm">
+    <div>
+      <label for="surname">Фамилия</label>
+      <input type="text" id="surname" required>
+    </div>
+    <div>
+      <label for="name">Имя</label>
+      <input type="text" id="name" required>
+    </div>
+    <div>
+      <label for="class">Класс</label>
+      <input type="text" id="class" required placeholder="например, 10А">
+    </div>
+    <div>
+      <label for="date">Дата</label>
+      <input type="date" id="date" required>
+    </div>
+    <button type="submit">Найти логи</button>
+  </form>
+
+  <pre id="results"></pre>
 <script>
 
  fetch('/guard/data', {
@@ -173,21 +181,53 @@ document.getElementById('open-shift').addEventListener('click', () => {
       });
     });
 
-    async function fetchLogData() {
-            const date = document.getElementById('date').value;
-            const username = document.getElementById('username').value;
 
-            const response = await fetch('/get-log-data', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ date, username }),
-            });
+    const form   = document.getElementById('logForm');
+    const output = document.getElementById('results');
 
-            const data = await response.json();
-            document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      output.textContent = 'Загрузка...';
+
+      // Собираем значения из полей
+      const payload = {
+        surname: document.getElementById('surname').value.trim(),
+        name:    document.getElementById('name').value.trim(),
+        class:   document.getElementById('class').value.trim(),
+        date:    document.getElementById('date').value
+      };
+
+      try {
+        const resp = await fetch('/get-log-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        // Обработка кодов ответа
+        if (resp.status === 400) {
+          const err = await resp.json();
+          output.textContent = `Ошибка: ${err.error}`;
+          return;
         }
+        if (resp.status === 404) {
+          output.textContent = 'Записи не найдены';
+          return;
+        }
+        if (!resp.ok) {
+          output.textContent = `Неизвестная ошибка: ${resp.status}`;
+          return;
+        }
+
+        // Успешно: парсим JSON и выводим
+        const data = await resp.json();
+        output.textContent = JSON.stringify(data, null, 2);
+
+      } catch (err) {
+        console.error(err);
+        output.textContent = 'Ошибка сети или сервера';
+      }
+    });
   </script>
 </script>
 </body>
