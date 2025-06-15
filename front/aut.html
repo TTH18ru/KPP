@@ -133,7 +133,7 @@
     if (data.token) {
         localStorage.setItem('token', data.token); // Сохраняем токен
         window.location.href = 'https://192.168.228.96:3000/qr.html'; // Пример перенаправления
-    } else {    console.log("токен не работает");   }})
+    } else {    console.log("токен не работает"); alert("Неправильный логин или пароль")  }})
     /*обработка ответа, редирект*/
 
 .catch(error => { console.log("что-то не работает, но это не токен");})  /*обработчик ошибок*/

@@ -123,6 +123,7 @@
       <h1>Данные ученика</h1>
       <div id="output"></div>
       <button id="open-shift">Открыть смену</button>
+        <button id="refresh-page">Обновить страницу</button>
     </div>
 
     <!-- Кол-во студентов -->
@@ -177,6 +178,13 @@
 
 <script>
 
+    document.getElementById('refresh-page').addEventListener('click', () => {
+    // Перезагружаем текущую страницу
+    location.reload();
+  });
+
+
+  
  fetch('/guard/data', {
   method: 'GET',
   headers: {
@@ -273,19 +281,30 @@ document.getElementById('open-shift').addEventListener('click', () => {
           resultDiv.innerHTML = '<p>Студенты в данной группе не найдены.</p>';
           return;
         }
-        // Выводим полученных студентов, добавляя каждый в блок resultDiv
-        data.forEach(student => {
-          const studentDiv = document.createElement('div');
-          studentDiv.classList.add('student');
-          studentDiv.innerHTML = `
-            <p><strong>ФИО:</strong> ${student.surname} ${student.name} ${student.patronymic}</p>
-            <p><strong>Дата рождения:</strong> ${student.dob}</p>
-            <p><strong>Группа:</strong> ${student.class}</p>
-            <p><strong>Username:</strong> ${student.username}</p>
-          `;
-          resultDiv.appendChild(studentDiv);
-        });
-      })
+
+      data.forEach(student => {
+    // 1) Преобразуем ISO-строку student.dob в Date
+    const date = new Date(student.dob);
+
+    // 2) Форматируем в "дд.мм.гггг"
+    const formattedDob = date.toLocaleDateString('ru-RU', {
+      day:   '2-digit',
+      month: '2-digit',
+      year:  'numeric'
+    });
+
+    // 3) Создаём разметку, вставляя formattedDob вместо student.dob
+    const studentDiv = document.createElement('div');
+    studentDiv.classList.add('student');
+    studentDiv.innerHTML = `
+      <p><strong>ФИО:</strong> ${student.surname} ${student.name} ${student.patronymic}</p>
+      <p><strong>Дата рождения:</strong> ${formattedDob}</p>
+      <p><strong>Группа:</strong> ${student.class}</p>
+      <p><strong>Username:</strong> ${student.username}</p>
+    `;
+    resultDiv.appendChild(studentDiv);
+  });
+})
       .catch(error => {
         console.error(error);
         resultDiv.innerHTML = '<p>Произошла ошибка при получении данных студентов.</p>';
