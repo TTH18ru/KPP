@@ -123,7 +123,7 @@
       <h1>Данные ученика</h1>
       <div id="output"></div>
       <button id="open-shift">Открыть смену</button>
-        <button id="refresh-page">Обновить страницу</button>
+        <button id="refresh-page">Обновить данные</button>
     </div>
 
     <!-- Кол-во студентов -->
@@ -182,7 +182,7 @@
     // Перезагружаем текущую страницу
     location.reload();
   });
-
+/*------------------кнопка обновления страницы -----------------------*/
 
   
  fetch('/guard/data', {
@@ -204,7 +204,7 @@
   }
 })
 .catch(error => console.error('Ошибка:', error));
-
+/*------------------данные об ученике, отсканировавщем QR ------------------*/
 
 document.getElementById('getCurrentStudentsCount').addEventListener('click', () => {
     fetch('/current-students-count', {
@@ -227,7 +227,7 @@ document.getElementById('getCurrentStudentsCount').addEventListener('click', () 
         document.getElementById('result').innerText = 'Произошла ошибка при получении данных.';
     });
 });
-
+/*------------данные о студентах, находящихся в техникуме----------------------*/
 
 document.getElementById('open-shift').addEventListener('click', () => {
   fetch('/open-shift', {
@@ -245,6 +245,8 @@ document.getElementById('open-shift').addEventListener('click', () => {
     console.error(error);
   });
 });
+/*---------------------открытие смены охранником-------------------------*/
+
 
  const groupSelect = document.getElementById('group-select');
     const loadStudentsBtn = document.getElementById('load-students-btn');
@@ -310,7 +312,7 @@ document.getElementById('open-shift').addEventListener('click', () => {
         resultDiv.innerHTML = '<p>Произошла ошибка при получении данных студентов.</p>';
       });
     });
-
+/*----------------получение данные о студентах по группе----------------------------*/
 
     const form    = document.getElementById('logForm');
     const results = document.getElementById('results');
@@ -401,6 +403,7 @@ document.getElementById('open-shift').addEventListener('click', () => {
 
       results.innerHTML = html;
     }
+    /*------------получение информации о посещении студента техникума----------------*/
   </script>
 </script>
 </body>

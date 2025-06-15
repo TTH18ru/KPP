@@ -104,6 +104,7 @@
     const token = localStorage.getItem('token'); // Получаем токен из localStorage
     console.log('Токен:', token);
 
+//отправка данных на сайт охраны
 async function sendDataToSecurity(data) {
     try {
         const response = await fetch('/guard.html', { 
