@@ -162,7 +162,7 @@
           <input type="text" id="name" required>
         </div>
         <div>
-          <label for="class">Класс</label>
+          <label for="class">Группа</label>
           <input type="text" id="class" required placeholder="например, П-21">
         </div>
         <div>
@@ -240,7 +240,7 @@ document.getElementById('open-shift').addEventListener('click', () => {
   .then(response => response.json())
   .then(data => {
     console.log(data);
-    alert("смена открыта")
+    alert("Смена открыта")
   })
   .catch(error => {
     console.error(error);
