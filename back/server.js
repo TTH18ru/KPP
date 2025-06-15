@@ -8,12 +8,12 @@ const jwt = require('jsonwebtoken');
 const secretKey = 'my_secret_key'
 const cors = require('cors');
 const axios = require('axios');
-/*все необходимые зависимости */
+/*-----подключение необходимых зависимостей------*/
 
 const options = {
     key: fs.readFileSync(path.join(__dirname, 'server.key')), 
     cert: fs.readFileSync(path.join(__dirname, 'server.crt')) };
-/*шифрование*/
+/*------подключение файлов шифрования---------*/
 
 const app = express();
 const PORT = 3000;
@@ -24,7 +24,7 @@ const db = mysql.createConnection({
     user: 'adm', 
     password: '123', 
     database: 'KPP'  });
-/*база*/
+/*---------БАЗА------------*/
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, '../front')));
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-/*middleware */
+/*-------------middleware------------*/
 
 db.connect((err) => {
     if (err) {
@@ -42,7 +42,7 @@ db.connect((err) => {
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../front/reg.html'));    });
-/*назначение корневой папки */
+/*--------------назначение корневой папки------------------*/
 
 
 app.post('/submit', (req, res) => {
@@ -54,7 +54,7 @@ app.post('/submit', (req, res) => {
             return res.status(400).send('Error registering user');
         }
             res.redirect('https://192.168.228.96:3000/aut.html'); }); }); 
-            /*регистрация */
+/*-------------------регистрация пользователя-------------------------*/
 
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
@@ -78,7 +78,7 @@ app.post('/login', (req, res) => {
         res.json({ token });
     });
 });
-
+/*-------------------вход пользователя------------------------- */
 
 app.post('/log', (req, res) => {
   const token = req.headers.authorization.split(' ')[1];
@@ -108,6 +108,8 @@ app.post('/log', (req, res) => {
         console.error('Ошибка записи данных:', err);
         return res.status(500).send({ message: 'Ошибка записи данных' });
       }
+/*-----запись данных о дейсвиях учащихся в бд, созданную ранее охранником, при нажатии "открыть смену-------*/
+//ps. приложение не будет работать без открытия смены, действия учеников не должны производится без присутствия охраны
 
       // Дублируем данные в таблицу log
       const logQuery = `INSERT INTO log (name, surname, patronymic, class, status, time) VALUES (?, ?, ?, ?, ?, ?)`;
@@ -124,7 +126,7 @@ app.post('/log', (req, res) => {
     });
   });
 });
-
+/*---------------запись данных в общую базу за все дни--------------------*/
 
   app.post('/open-shift', (req, res) => {
   const currentDate = new Date();
@@ -139,7 +141,7 @@ app.post('/log', (req, res) => {
     res.send({ message: 'Таблица создана успешно' });
   });
 });    
-
+/*------------------открытие смены охранником----------------------*/
 
 const authenticateToken = (req, res, next) => {
     const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1]; // Получаем токен из заголовка
@@ -152,8 +154,9 @@ const authenticateToken = (req, res, next) => {
         next(); // Переходим к следующему middleware
     });
 };
+/*---------получение токена безопасности, без него запросы не работают-------------*/
 
-// Получение данных пользователя
+
 app.get('/profile', authenticateToken, async (req, res) => {
     const username = req.user.username; // Извлекаем имя пользователя из токена
 
@@ -191,6 +194,8 @@ app.post('/qr.html', (req, res) => {
     console.log(userDataWithoutPassword); // Логируем данные для проверки
     res.send('Данные получены'); // Отправляем ответ клиенту
 });
+/*-----------------Передача данных пользователя на сайт QR----------------*/
+
 
 app.post('/query', (req, res) => {
   const { fio, startDate, endDate, outputFormat } = req.body;
