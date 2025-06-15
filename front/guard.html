@@ -1,69 +1,180 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сайт охраны</title>
-    <style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Сайт охраны</title>
+  <style>
+    /* Общие стили страницы */
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
     }
+    /* Обёртка для контента с отступом сверху */
+    .page-wrapper {
+      width: 360px;
+      margin: 5% 0;
+    }
+    /* Карточка со светлым фоном */
+    .card {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 4px;
+    }
+    /* Заголовки внутри карточек */
+    .card h1 {
+      font-size: 22px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    /* Кнопки */
+    .card button {
+      width: 100%;
+      font-size: 16px;
+      padding: 12px;
+      margin-top: 10px;
+      background: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .card button:hover {
+      background: #0056b3;
+    }
+    /* Вывод данных ученика */
+    #output {
+      font-size: 16px;
+      min-height: 40px;
+    }
+    /* Секция «кол-во студентов» */
+    #result {
+      font-size: 16px;
+      margin-top: 10px;
+      min-height: 20px;
+    }
+    /* Список студентов */
+    .form-section {
+      margin-bottom: 20px;
+    }
+    .form-section label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+    .form-section select {
+      width: 100%;
+      font-size: 16px;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    /* Форма поиска логов */
+    #logForm div {
+      margin-bottom: 12px;
+    }
+    #logForm label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    #logForm input {
+      width: 100%;
+      font-size: 16px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    #results {
+      background: #e9ecef;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      white-space: pre-wrap;
+      min-height: 60px;
+      margin-top: 10px;
+    }
+    /* Пример стиля .student */
     .student {
       border: 1px solid #ccc;
       padding: 10px;
       margin: 5px 0;
+      font-size: 16px;
+      border-radius: 4px;
     }
-    </style>
+  </style>
 </head>
 <body>
-<h1>Данные ученика</h1>
-<div id="output"></div>
-<button id="open-shift">Открыть смену</button>
 
+  <div class="page-wrapper">
 
- <button id="getCurrentStudentsCount">Кол-во студентов в техникуме:</button>
-    <div id="result"></div>
-
-
-  <div class="container">
-    <h1>Список студентов</h1>
-    
-    <!-- Блок выбора группы -->
-    <div class="form-section">
-      <label for="group-select">Выберите группу:</label>
-      <select id="group-select">
-        <option value="">-- Выберите группу --</option>
-        <option value="П-21">П-21</option>
-        <option value="П-31">П-31</option>
-        <option value="П-41">П-41</option>
-      </select>
-      <button id="load-students-btn">Показать студентов</button>
+    <!-- Данные ученика -->
+    <div class="card">
+      <h1>Данные ученика</h1>
+      <div id="output"></div>
+      <button id="open-shift">Открыть смену</button>
     </div>
-    
-   <h1>Поиск логов по студенту</h1>
 
-  <form id="logForm">
-    <div>
-      <label for="surname">Фамилия</label>
-      <input type="text" id="surname" required>
+    <!-- Кол-во студентов -->
+    <div class="card">
+      <h1>Данные о студентах</h1>
+      <button id="getCurrentStudentsCount">Кол-во студентов в техникуме</button>
+      <div id="result"></div>
     </div>
-    <div>
-      <label for="name">Имя</label>
-      <input type="text" id="name" required>
-    </div>
-    <div>
-      <label for="class">Класс</label>
-      <input type="text" id="class" required placeholder="например, 10А">
-    </div>
-    <div>
-      <label for="date">Дата</label>
-      <input type="date" id="date" required>
-    </div>
-    <button type="submit">Найти логи</button>
-  </form>
 
-  <pre id="results"></pre>
+    <!-- Список студентов по группе -->
+    <div class="card">
+      <h1>Данные о студентах по группе</h1>
+      <div class="form-section">
+        <label for="group-select">Выберите группу:</label>
+        <select id="group-select">
+          <option value="">-- Выберите группу --</option>
+          <option value="П-21">П-21</option>
+          <option value="П-31">П-31</option>
+          <option value="П-41">П-41</option>
+        </select>
+        <button id="load-students-btn">Показать студентов</button>
+      </div>
+      <div id="students-list"></div>
+    </div>
+
+    <!-- Поиск логов -->
+    <div class="card">
+      <h1>Посещаемость студента</h1>
+      <form id="logForm">
+        <div>
+          <label for="surname">Фамилия</label>
+          <input type="text" id="surname" required>
+        </div>
+        <div>
+          <label for="name">Имя</label>
+          <input type="text" id="name" required>
+        </div>
+        <div>
+          <label for="class">Класс</label>
+          <input type="text" id="class" required placeholder="например, П-21">
+        </div>
+        <div>
+          <label for="date">Дата</label>
+          <input type="date" id="date" required>
+        </div>
+        <button type="submit">Найти записи</button>
+      </form>
+      <pre id="results"></pre>
+    </div>
+
+  </div>
+
 <script>
 
  fetch('/guard/data', {

@@ -1,40 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Information Form</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Information Form</title>
+  <style>
+    /* Общие стили для страницы */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center; /* центрируем по горизонтали */
+      background: #f9f9f9;
+    }
+
+    /* Контейнер формы */
+    .form-container {
+      width: 360px;       /* чуть больше */
+      margin-top: 5%;     /* отступ сверху */
+      background: #fff;
+      padding: 20px;      /* внутренний отступ вокруг формы */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 4px;
+    }
+
+    /* Заголовок формы */
+    .form-container h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* Стили для всех элементов label */
+    .form-container label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    /* Общие стили для текстовых полей, даты и селекта */
+    .form-container input[type="text"],
+    .form-container input[type="password"],
+    .form-container input[type="date"],
+    .form-container select {
+      width: 100%;
+      font-size: 16px;      /* увеличенный размер шрифта */
+      padding: 10px 12px;   /* увеличенный внутренний отступ */
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    /* Стили для кнопки отправки */
+    .form-container input[type="submit"] {
+      width: 100%;
+      font-size: 18px;    /* увеличенный шрифт кнопки */
+      padding: 12px;
+      background: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .form-container input[type="submit"]:hover {
+      background: #0056b3;
+    }
+
+    /* Подсказка-посилание (ссылка) */
+    .form-container p {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+    .form-container p a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+    .form-container p a:hover {
+      text-decoration: underline;
+    }
+
+    /* Пример стиля для .student */
+    .student {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 5px 0;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Регистрация </h1>
+  <div class="form-container">
+    <h1>Регистрация</h1>
     <form action="/submit" method="POST">
-        <label for="username">Логин:</label><br>
-        <input type="text" id="username" name="username" required pattern="[a-zA-Z0-9_]{3,20}" title="Username должен содержать от 3 до 20 символов и не содержать специальных символов"><br><br>
-    
-        <label for="password">Пароль:</label><br>
-        <input type="password" id="password" name="password" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" title="Пароль должен содержать не менее 8 символов, включая хотя бы одну заглавную букву, одну строчную букву, одну цифру и один специальный символ, используется английская раскладка"><br><br>
-    
-        <label for="surname">Фамилия:</label><br>
-        <input type="text" id="surname" name="surname" required pattern="^[А-Я][а-я]{2,10}" title="Фамилия должна содержать от 2 до 10 символов и не содержать цифр и специальных символов. Фамилия пишется с большой буквы"><br><br>
+      <label for="username">Логин:</label>
+      <input type="text" id="username" name="username" required
+             pattern="[a-zA-Z0-9_]{3,20}"
+             title="Можете использовать от 3 до 20 символов, английскую раскладку и подчеркивание">
 
-        <label for="name">Имя:</label><br>
-        <input type="text" id="name" name="name" required pattern="^[А-Я][а-я]{2,10}" title="Имя должно содержать от 2 до 10 символов и не содержать цифр и специальных символов. Имя пишется с большой буквы"><br><br>
-    
-        <label for="patronymic">Отчество:</label><br>
-        <input type="text" id="patronymic" name="patronymic" required pattern="^[А-Я][а-я]{2,10}" title="Имя должно содержать от 2 до 10 символов и не содержать цифр и специальных символов. Имя пишется с большой буквы"><br><br>
-    
-        <label for="dob">Дата рождения:</label><br>
-        <input type="date" id="dob" name="dob" required max="2009-01-01" title="Дата рождения должна быть не ранее 2009 года"><br><br>
-    
-        <label for="class">Группа:</label><br>
-<select id="class" name="class">
-  <option value="П-21">П-21</option>
-  <option value="П-31">П-31</option>
-  <option value="П-41">П-41</option> 
-</select><br><br>
-    
-        <input type="submit" value="Submit">
+      <label for="password">Пароль:</label>
+      <input type="password" id="password" name="password" required
+             pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+             title="Используйте не менее 8 символов, хотя бы 1 заглавная, 1 строчная, 1 цифра и 1 спецсимвол, используйте английскую раскладку">
+
+      <label for="surname">Фамилия:</label>
+      <input type="text" id="surname" name="surname" required
+             pattern="^[А-Я][а-я]{2,10}"
+             title="Цифры, подчерцивания и иные символы не допускаются, первая заглавная">
+
+      <label for="name">Имя:</label>
+      <input type="text" id="name" name="name" required
+             pattern="^[А-Я][а-я]{2,10}"
+             title="Цифры, подчерцивания и иные символы не допускаются, первая заглавная">
+
+      <label for="patronymic">Отчество:</label>
+      <input type="text" id="patronymic" name="patronymic" required
+             pattern="^[А-Я][а-я]{2,10}"
+             title="Цифры, подчерцивания и иные символы не допускаются, первая заглавная">
+
+      <label for="dob">Дата рождения:</label>
+      <input type="date" id="dob" name="dob" required
+             max="2009-01-01" title="Не младше 2009 года">
+
+      <label for="class">Группа:</label>
+      <select id="class" name="class">
+        <option value="П-21">П-21</option>
+        <option value="П-31">П-31</option>
+        <option value="П-41">П-41</option>
+      </select>
+
+      <input type="submit" value="Зарегистрироваться">
     </form>
-    <p>Уже есть аккаунт? <a href="https://192.168.0.17:3000/aut.html">Войти</a></p>
+
+    <p>Уже есть аккаунт? <a href="https://192.168.228.96:3000/aut.html">Войти</a></p>
+  </div>
 </body>
 </html>

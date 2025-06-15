@@ -1,19 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Information Form</title>
-    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QR Code Scanner</title>
+
+  <!-- HTML5 QR-Code скрипт -->
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
+
+  <style>
+    /* Общие стили */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      background: #f2f2f2;
+    }
+
+    /* Обёртка с отступом сверху и фиксированной шириной */
+    .form-wrapper {
+      width: 360px;
+      margin-top: 5%;
+    }
+
+    /* Карточка формы/сканера */
+    .form-container {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 4px;
+    }
+
+    /* Заголовок */
+    .form-container h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* Блок для ридера */
+    #reader {
+      width: 100%;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    /* Кнопки */
+    .form-container button {
+      width: 48%;
+      font-size: 16px;
+      padding: 10px;
+      margin: 4px 1%;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #fff;
+    }
+    #startScan {
+      background: #28a745;
+    }
+    #startScan:hover {
+      background: #218838;
+    }
+    #stopScan {
+      background: #dc3545;
+    }
+    #stopScan:hover {
+      background: #c82333;
+    }
+
+    /* Поле для результата */
+    #greeting {
+      font-size: 16px;
+      padding: 10px;
+      margin-top: 16px;
+      background: #e9ecef;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      min-height: 40px;
+    }
+  </style>
 </head>
 <body>
-<h2>Scan QR Code</h2>
-    <div id="reader" style="width: 600px;"></div>
-    <button id="startScan">Start Scanning</button>
-    <button id="stopScan" style="display:none;">Stop Scanning</button>
-
-    <div id="greeting" class="greeting"></div>
+  <div class="form-wrapper">
+    <div class="form-container">
+      <h2>Сканирование QR</h2>
+      <div id="reader"></div>
+      <button id="startScan">Начать сканирование</button>
+      <button id="stopScan" style="display:none;">Остановить сканирование</button>
+      <div id="greeting" class="greeting"></div>
+    </div>
+  </div>
 
 <script>
 
@@ -85,7 +167,7 @@ document.getElementById("startScan").addEventListener("click", function() {
         { facingMode: "environment" }, // Используем камеру окружения
         {
             fps: 10,    // Кадры в секунду для сканирования
-            qrbox: 250  // Размер области сканирования
+            qrbox: 250 // Размер области сканирования
         },
         (decodedText, decodedResult) => {
             console.log("Отсканированный текст:", decodedText); // Логирование отсканированного текста
@@ -95,12 +177,12 @@ if (decodedText.includes("input")) {
   getUserProfile()
     .then(data => {
       console.log('Данные профиля:', data);
-      
+      alert("Добро пожаловать в техникум!");
       // Отправляем все данные профиля на сайт охраны
       sendDataToSecurity(data.data); // Предполагается, что все нужные данные находятся в data.data
       
       // Отправляем данные на сервер для сохранения в БД
-      fetch('https://192.168.0.17:3000/log', {
+      fetch('https://192.168.228.96:3000/log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,15 +206,15 @@ if (decodedText.includes("input")) {
     });
 } else if (decodedText.includes("output")) {
   console.log("QR-код содержит 'output'.");
+  alert("Досвидания!");
   getUserProfile()
     .then(data => {
       console.log('Данные профиля:', data);
-      
       // Отправляем все данные профиля на сайт охраны
       sendDataToSecurity(data.data); // Предполагается, что все нужные данные находятся в data.data
       
       // Отправляем данные на сервер для сохранения в БД
-      fetch('https://192.168.0.17:3000/log', {
+      fetch('https://192.168.228.96:3000/log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
