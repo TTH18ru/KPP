@@ -240,6 +240,7 @@ document.getElementById('open-shift').addEventListener('click', () => {
   .then(response => response.json())
   .then(data => {
     console.log(data);
+    alert("смена открыта")
   })
   .catch(error => {
     console.error(error);

@@ -226,7 +226,7 @@ app.post('/query', (req, res) => {
     res.json(response);
   });
 });
-
+/*------------список студентов по группе----------------*/
 
 // 3. Эндпоинт для получения логов
 app.post('/get-log-data', (req, res) => {
@@ -283,6 +283,8 @@ app.post('/get-log-data', (req, res) => {
     });
   });
 });
+/*-------------------*получение данных посещения техгикума студентом------------ */
+
 
 // 4. Раздаём клиентские файлы (index.html и т.д.) из той же папки
 app.use(express.static(path.join(__dirname)));
@@ -320,7 +322,7 @@ app.post('/current-students-count', (req, res) => {
     res.json({ currentStudentsCount: count });
   });
 });
-
+/*--------данные о студентах, находящихся в техникуме---------*/
 
 
 let storedData = null;
